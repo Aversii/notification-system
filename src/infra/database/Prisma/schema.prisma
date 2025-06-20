@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id                                      String              @id
+  name                                    String
+  email                                   String
+  phoneNumber                             String?
+  createdAt                               DateTime            @default(now())
+  Agreement_Agreement_clientOneIdToClient Agreement[]         @relation("Agreement_clientOneIdToClient")
+  Agreement_Agreement_clientTwoIdToClient Agreement[]         @relation("Agreement_clientTwoIdToClient")
+  AgreementResponse                       AgreementResponse[]
+  Notification                            Notification[]
+}
+
+model Agreement {
+  id                                   String              @id
+  title                                String
+  description                          String
+  status                               String
+  clientOneId                          String
+  clientTwoId                          String
+  createdAt                            DateTime            @default(now())
+  lastUpdatedAt                        DateTime            @updatedAt
+  Client_Agreement_clientOneIdToClient Client              @relation("Agreement_clientOneIdToClient", fields: [clientOneId], references: [id])
+  Client_Agreement_clientTwoIdToClient Client              @relation("Agreement_clientTwoIdToClient", fields: [clientTwoId], references: [id])
+  responses                            AgreementResponse[]
+  Notification                         Notification[]
+}
+
+model AgreementResponse {
+  id             String    @id
+  agreementId    String
+  senderClientId String
+  message        String
+  createdAt      DateTime  @default(now())
+  agreement      Agreement @relation(fields: [agreementId], references: [id])
+  Client         Client    @relation(fields: [senderClientId], references: [id])
+
+  @@index([agreementId])
+  @@index([senderClientId])
+}
+
+model Notification {
+  id           String    @id
+  agreementId  String
+  toClientId   String
+  channel      String
+  message      String
+  status       String
+  createdAt    DateTime  @default(now())
+  sentAt       DateTime?
+  errorMessage String?
+  Agreement    Agreement @relation(fields: [agreementId], references: [id])
+  Client       Client    @relation(fields: [toClientId], references: [id])
+
+  @@index([agreementId])
+  @@index([toClientId])
+}
