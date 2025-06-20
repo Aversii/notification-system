@@ -16,12 +16,6 @@ export class NodemailerEmailService implements NotificationChannelGateway  {
   });
 
   constructor() {
-    console.log('📦 NodemailerEmailService iniciado...');
-    console.log('🔧 Config SMTP:', {
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      user: process.env.EMAIL_USER,
-    });
 
     this.transporter.verify((error, success) => {
       if (error) {

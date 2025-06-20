@@ -4,14 +4,22 @@ import { PrismaNotificationGateway } from "../../../database/Prisma/gateway/Pris
 import { MarkNotificationAsFailed } from "../../../../application/usecases/MarkNotificationAsFailed ";
 import { Notification } from "../../../../domain/aggregate/Notification";
 import { NodemailerEmailService } from "../../../service/NodemailerEmailService";
-
-import dotenv from "dotenv";
 import { WhatsAppService } from "../../../service/WhatsappService";
+import dotenv from "dotenv";
+
 dotenv.config();
 
 const notificationGateway = new PrismaNotificationGateway();
 const emailGateway = new NodemailerEmailService();
 const whatsappGateway = new WhatsAppService();
+
+const sendNotificationUseCase = new SendNotification(
+  notificationGateway,
+  emailGateway,
+  whatsappGateway
+);
+
+const markNotificationAsFailedUseCase = new MarkNotificationAsFailed(notificationGateway);
 
 export class NotificationController {
   async send(request: FastifyRequest, reply: FastifyReply) {
@@ -25,17 +33,10 @@ export class NotificationController {
       toPhoneNumber: phoneFromBody,
     } = request.body as any;
 
-    // Para WhatsApp, usar o toPhoneNumber do body; para outros canais, undefined
     const toPhoneNumber = channel === "WHATSAPP" ? phoneFromBody : undefined;
 
-    const usecase = new SendNotification(
-      notificationGateway,
-      emailGateway,
-      whatsappGateway
-    );
-
     try {
-      await usecase.execute({
+      await sendNotificationUseCase.execute({
         id,
         agreementId,
         toClientId,
@@ -60,8 +61,7 @@ export class NotificationController {
     const { notificationId } = request.params as any;
     const { errorMessage } = request.body as any;
 
-    const usecase = new MarkNotificationAsFailed(notificationGateway);
-    await usecase.execute({ notificationId, errorMessage });
+    await markNotificationAsFailedUseCase.execute({ notificationId, errorMessage });
 
     return reply.status(200).send({ message: "Notification marked as failed" });
   }

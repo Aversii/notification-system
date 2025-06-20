@@ -121,7 +121,7 @@ export class PrismaNotificationGateway implements NotificationGateway {
     await this.prisma.notification.create({
       data: {
         id,
-        agreementId: '', // Se não tiver acordo vinculado, pode deixar vazio ou adaptar conforme necessário
+        agreementId: '',
         toClientId: input.toClientId,
         channel: 'email',
         message: input.message,
@@ -130,10 +130,7 @@ export class PrismaNotificationGateway implements NotificationGateway {
       },
     });
 
-    // Simula o envio (exemplo: console.log)
-    console.log(`Enviando notificação para ${input.toClientId}: ${input.subject} - ${input.message}`);
 
-    // Atualiza a notificação para status 'sent' após envio
     await this.prisma.notification.update({
       where: { id },
       data: {
