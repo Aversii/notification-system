@@ -21,7 +21,7 @@ Este projeto é uma API backend modular, desacoplada de frameworks específicos,
 
 ### Dependências de desenvolvimento
 - [typescript](https://www.typescriptlang.org/) — linguagem TypeScript
-- [ts-node](https://typestrong.org/ts-node/) e [tsx](https://github.com/esbuild-kit/tsx) — rodar TS diretamente
+- [ts-node](https://typestrong.org/ts-node) e [tsx](https://github.com/esbuild-kit/tsx) — rodar TS diretamente
 - [ts-node-dev](https://github.com/wclr/ts-node-dev) — reload automático para desenvolvimento
 - Tipagens (`@types/node`, `@types/nodemailer`, etc) para melhor experiência e segurança
 
@@ -51,7 +51,7 @@ src/
 1. Clone o repositório:
 
 ```bash
-git clone <url-do-repositorio>
+git clone <[url-do-repositorio](https://github.com/Aversii/notification-system)>
 cd notification-system
 ```
 
@@ -72,7 +72,7 @@ EMAIL_PASSWORD="sua-senha-ou-token"
 4. Gere o cliente Prisma:
 
 ```bash
-npx prisma generate
+npx prisma generate --schema=src/infra/database/Prisma/schema.prisma
 ```
 
 5. Execute a aplicação em modo desenvolvimento:
@@ -97,6 +97,32 @@ npm start
 
 ---
 
+## 🗄️ Migrations (Banco de Dados)
+
+Este projeto utiliza Prisma para gerenciar o schema do banco de dados.
+
+### Criar uma migration (desenvolvimento)
+
+Sempre que alterar o schema (`schema.prisma`), execute:
+
+```bash
+npx prisma migrate dev --name nome-da-sua-migration --schema=src/infra/database/Prisma/schema.prisma
+```
+
+Isso irá criar a migration, aplicar no banco local e atualizar o Prisma Client.
+
+### Aplicar migrations em produção
+
+Em produção ou no Docker:
+
+```bash
+npx prisma migrate deploy --schema=src/infra/database/Prisma/schema.prisma
+```
+
+Isso irá executar todas as migrations pendentes no banco configurado.
+
+---
+
 ## 📦 Controllers principais
 
 - **NotificationController** — gerenciamento das notificações (enviar, marcar falha, consultas)
@@ -107,8 +133,8 @@ npm start
 
 ## 🤝 Estrutura dos casos de uso
 
-- Casos de uso são implementados na camada `application/usecases/` e injetam as dependências de gateways/repositórios do `infrastructure/`.
-- Exemplo: `SendNotification` usa o `PrismaNotificationGateway`, `NodemailerEmailService` e `WhatsappService`.
+- Casos de uso estão na camada `application/usecases/` e recebem as dependências de gateways/repositórios da camada `infrastructure/`.
+- Exemplo: `SendNotification` utiliza `PrismaNotificationGateway`, `NodemailerEmailService` e `WhatsappService`.
 
 ---
 
